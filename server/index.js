@@ -45,28 +45,54 @@ app.get('/*', async (req, res) => {
 
 app.put('/*', async (req, res) => {
   const data = req.body;
-  try {
-    const response = await axios.put(`${baseURL}${req.url}`, { data }, {
-      headers: { Authorization: process.env.API_KEY },
-    });
-    res.status(200).json(response.data);
-  } catch (err) {
-    console.log(err);
+  if (req.url.includes('qa/')){
+    let newUrl = req.url.slice(3);
+    try {
+      const response = await axios.put(`${qaURL}${newUrl}`, { data }, {
+        headers: { Authorization: process.env.API_KEY },
+      });
+      res.status(200).json(response.data);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ message: 'Error', err });
+    }
+  } else {
+    try {
+      const response = await axios.put(`${baseURL}${req.url}`, { data }, {
+        headers: { Authorization: process.env.API_KEY },
+      });
+      res.status(200).json(response.data);
+    } catch (err) {
+      console.log(err);
 
-    res.status(500).json({ message: 'Error', err });
+      res.status(500).json({ message: 'Error', err });
+    }
   }
 });
 
 app.post('/*', async (req, res) => {
   const data = req.body;
-  try {
-    await axios.post(`${baseURL}${req.url}`, data, {
-      headers: { Authorization: process.env.API_KEY },
-    });
-    res.sendStatus(201);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: 'Error', err });
+  if (req.url.includes('qa/')){
+    let newUrl = req.url.slice(3);
+    try {
+      const response = await axios.post(`${qaURL}${newUrl}`, data, {
+        headers: { Authorization: process.env.API_KEY },
+      });
+      res.sendStatus(201);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ message: 'Error', err });
+    }
+  } else {
+    try {
+      await axios.post(`${baseURL}${req.url}`, data, {
+        headers: { Authorization: process.env.API_KEY },
+      });
+      res.sendStatus(201);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ message: 'Error', err });
+    }
   }
 });
 
