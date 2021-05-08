@@ -14,12 +14,21 @@ app.use(logger('dev'));
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
 const baseURL = 'https://app-hrsei-api.herokuapp.com/api/fec2/hr-rfp';
-const qaURL = 'https://localhost:3001';
+const qaURL = 'http://localhost:3001';
 app.get('/*', async (req, res) => {
   if (req.url.includes('favicon')) {
     res.sendStatus(200);
   } else if (req.url.includes('qa/')){
-    console.log(req.url);
+    let newUrl = req.url.slice(3);
+    try {
+      const response = await axios.get(`${qaURL}${newUrl}`, {
+        headers: { Authorization: process.env.API_KEY },
+      });
+      res.status(200).json(response.data);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ message: 'Error', err });
+    }
   } else {
     try {
       const response = await axios.get(`${baseURL}${req.url}`, {
